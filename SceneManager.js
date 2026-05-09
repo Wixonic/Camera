@@ -19,7 +19,7 @@ export class SceneManager {
 	init() {
 		this.scene = new THREE.Scene();
 
-		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas3D, antialias: true });
+		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas3D, antialias: false, powerPreference: "low-power" });
 		this.renderer.setClearAlpha(0);
 
 		this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
@@ -48,7 +48,6 @@ export class SceneManager {
 		this.camera.updateProjectionMatrix();
 
 		this.renderer.setSize(width, height);
-		this.renderer.setPixelRatio(window.devicePixelRatio);
 
 		if (this.canvas2D) {
 			this.canvas2D.width = width * window.devicePixelRatio;

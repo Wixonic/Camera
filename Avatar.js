@@ -121,7 +121,6 @@ export class Avatar {
 				map: texture,
 				transparent: true,
 				opacity: 0,
-				blending: THREE.AdditiveBlending,
 				depthWrite: false
 			});
 
