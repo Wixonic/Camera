@@ -18,6 +18,8 @@ export class Avatar {
 		this.eyesSyncThreshold = 0.2;
 		this.smilingFactor = 0.3;
 
+		this.previousVolume = 0;
+
 		this.eyeBaseCoeff = 0.1;
 		this.headPositionBaseCoeff = 0.05;
 		this.headQuaternionBaseCoeff = 0.05;
@@ -122,11 +124,11 @@ export class Avatar {
 		});
 	}
 
-	updateSoundIndicator(volume) {
+	updateSoundIndicator(volume, delta) {
 		if (this.soundIndicator) {
-			const easedVolume = Math.pow(volume, 3);
-			if (easedVolume < 0.2) this.soundIndicator.material.opacity = Math.max(this.soundIndicator.material.opacity - 0.025, 0);
-			else this.soundIndicator.material.opacity = easedVolume;
+			const lerpedVolume = THREE.MathUtils.lerp(this.previousVolume, volume > 0.8 ? volume : 0, delta * 30);
+			this.soundIndicator.material.opacity = lerpedVolume > 0.02 ? 1 - Math.pow(1 - Math.max(Math.min(lerpedVolume, 1), 0), 3) : 0;
+			this.previousVolume = volume;
 		}
 	}
 
@@ -209,16 +211,12 @@ export class Avatar {
 
 			if (this.leftEye.currentEyeState !== targetStateLeft) {
 				this.leftEye.currentEyeState = targetStateLeft;
-				this.leftEye.children.forEach((mesh) => {
-					mesh.material = this.eyeMaterials[targetStateLeft];
-				});
+				this.leftEye.material = this.eyeMaterials[targetStateLeft];
 			}
 
 			if (this.rightEye.currentEyeState !== targetStateRight) {
 				this.rightEye.currentEyeState = targetStateRight;
-				this.rightEye.children.forEach((mesh) => {
-					mesh.material = this.eyeMaterials[targetStateRight];
-				});
+				this.rightEye.material = this.eyeMaterials[targetStateRight];
 			}
 		}
 	}

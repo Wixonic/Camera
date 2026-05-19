@@ -92,7 +92,7 @@ class App {
 
 		if (this.audioManager && this.avatar) {
 			const volume = this.audioManager.getVolume();
-			this.avatar.updateSoundIndicator(volume);
+			this.avatar.updateSoundIndicator(volume, delta);
 		}
 
 		if (this.sceneManager) this.sceneManager.render();
