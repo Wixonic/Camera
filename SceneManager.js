@@ -32,10 +32,10 @@ export class SceneManager {
 
 		const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
 
-		const primaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 2);
+		const primaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 5);
 		primaryDirectionalLight.position.set(...this.primaryLightPos);
 
-		const secondaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 1);
+		const secondaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 3);
 		secondaryDirectionalLight.position.set(...this.secondaryLightPos);
 
 		this.scene.add(ambientLight, primaryDirectionalLight, secondaryDirectionalLight);
@@ -45,7 +45,7 @@ export class SceneManager {
 		const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 		bloomPass.threshold = 1.0;
 		bloomPass.strength = 0.2;
-		bloomPass.radius = 0.1;
+		bloomPass.radius = 0.5;
 
 		this.composer = new EffectComposer(this.renderer);
 		this.composer.addPass(renderPass);

@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export class Avatar {
 	constructor() {
-		this.emissionFactor = 5;
+		this.emissionFactor = 8;
 
 		this.head = null;
 		this.leftEye = null;
@@ -126,9 +126,9 @@ export class Avatar {
 
 	updateSoundIndicator(volume, delta) {
 		if (this.soundIndicator) {
-			const lerpedVolume = THREE.MathUtils.lerp(this.previousVolume, volume > 0.8 ? volume : 0, delta * 30);
-			this.soundIndicator.material.opacity = lerpedVolume > 0.02 ? 1 - Math.pow(1 - Math.max(Math.min(lerpedVolume, 1), 0), 3) : 0;
-			this.previousVolume = volume;
+			const lerpedVolume = THREE.MathUtils.lerp(this.previousVolume, volume > 0.3 ? volume : 0, 1 - Math.exp(-delta / 0.1));
+			this.soundIndicator.material.opacity = lerpedVolume > 0.01 ? 1 - Math.pow(1 - Math.max(Math.min(lerpedVolume, 1), 0), 3) : 0;
+			this.previousVolume = lerpedVolume;
 		}
 	}
 
