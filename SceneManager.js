@@ -1,4 +1,7 @@
 import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
 export class SceneManager {
 	constructor(canvas3D, canvas2D) {
@@ -8,6 +11,7 @@ export class SceneManager {
 		this.scene = null;
 		this.camera = null;
 		this.renderer = null;
+		this.composer = null;
 
 		this.cameraPosition = [0, 0.15, 1.5];
 		this.primaryLightPos = [4, 15, 3];
@@ -26,15 +30,26 @@ export class SceneManager {
 		this.camera.position.set(...this.cameraPosition);
 		this.scene.add(this.camera);
 
-		const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
 
-		const primaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 10);
+		const primaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 5);
 		primaryDirectionalLight.position.set(...this.primaryLightPos);
 
-		const secondaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 6);
+		const secondaryDirectionalLight = new THREE.DirectionalLight(0xffffff, 2);
 		secondaryDirectionalLight.position.set(...this.secondaryLightPos);
 
 		this.scene.add(ambientLight, primaryDirectionalLight, secondaryDirectionalLight);
+
+		const renderPass = new RenderPass(this.scene, this.camera);
+
+		const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+		bloomPass.threshold = 4.0;
+		bloomPass.strength = 1.3;
+		bloomPass.radius = 0.2;
+
+		this.composer = new EffectComposer(this.renderer);
+		this.composer.addPass(renderPass);
+		this.composer.addPass(bloomPass);
 
 		this._handleResize();
 		window.addEventListener("resize", () => this._handleResize());
@@ -48,6 +63,7 @@ export class SceneManager {
 		this.camera.updateProjectionMatrix();
 
 		this.renderer.setSize(width, height);
+		this.composer.setSize(width, height);
 
 		if (this.canvas2D) {
 			this.canvas2D.width = width * window.devicePixelRatio;
@@ -60,6 +76,6 @@ export class SceneManager {
 	}
 
 	render() {
-		this.renderer.render(this.scene, this.camera);
+		this.composer.render();
 	}
 }

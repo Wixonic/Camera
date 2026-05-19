@@ -10,8 +10,6 @@ export class Avatar {
 		this.rightEye = null;
 		this.eyeMaterials = [];
 
-		this.soundIndicators = [];
-
 		this.eyesInitialPosition = new THREE.Vector3(0.07, 0.22, 0.245);
 		this.eyeMovementCoeff = { x: 15, y: 15 };
 		this.blinkState = { left: false, right: false };
@@ -41,14 +39,11 @@ export class Avatar {
 		this.headTargetQuaternion = new THREE.Quaternion();
 		this.leftEyeTargetPosition = new THREE.Vector3();
 		this.rightEyeTargetPosition = new THREE.Vector3();
-
-		this.dummyVector = new THREE.Vector3();
 	}
 
 	async init() {
 		await this._loadModel();
-		await this._loadTextures();
-		await this._loadTextures();
+		await this._loadEyesTextures();
 		this._setupEyes();
 		this._setupSoundIndicator();
 
@@ -58,14 +53,12 @@ export class Avatar {
 
 	async _loadModel() {
 		const gltfLoader = new GLTFLoader();
-		const gltf = await new Promise((resolve, reject) =>
-			gltfLoader.load("./head.glb", resolve, undefined, reject)
-		);
+		const gltf = await new Promise((resolve, reject) => gltfLoader.load("./head.glb", resolve, undefined, reject));
 		this.head = gltf.scene.children[0];
 		this.head.position.set(0, 0, 0);
 	}
 
-	async _loadTextures() {
+	async _loadEyesTextures() {
 		const textureLoader = new THREE.TextureLoader();
 		const paths = ["./eye/default", "./eye/blink", "./eye/happy"];
 
@@ -74,9 +67,11 @@ export class Avatar {
 
 			this.eyeMaterials.push(new THREE.MeshBasicMaterial({
 				map: texture,
+				color: new THREE.Color().setScalar(this.emissionFactor),
 				transparent: true,
-				polygonOffset: true,
-				polygonOffsetFactor: -1,
+				blending: THREE.AdditiveBlending,
+				lightMap: texture,
+				lightMapIntensity: this.emissionFactor,
 				depthWrite: false
 			}));
 		}
@@ -85,15 +80,8 @@ export class Avatar {
 	_setupEyes() {
 		const eyeGeometry = new THREE.PlaneGeometry(0.1, 0.1);
 
-		this.leftEye = new THREE.Group();
-		this.rightEye = new THREE.Group();
-
-		for (let i = 0; i < this.emissionFactor; i++) {
-			const leftMesh = new THREE.Mesh(eyeGeometry, this.eyeMaterials[0]);
-			const rightMesh = new THREE.Mesh(eyeGeometry, this.eyeMaterials[0]);
-			this.leftEye.add(leftMesh);
-			this.rightEye.add(rightMesh);
-		}
+		this.leftEye = new THREE.Mesh(eyeGeometry, this.eyeMaterials[0]);
+		this.rightEye = new THREE.Mesh(eyeGeometry, this.eyeMaterials[0]);
 
 		this.leftEye.initialX = -this.eyesInitialPosition.x;
 		this.leftEye.initialY = this.eyesInitialPosition.y;
@@ -119,33 +107,31 @@ export class Avatar {
 			const geometry = new THREE.PlaneGeometry(0.386, 0.206);
 			const material = new THREE.MeshBasicMaterial({
 				map: texture,
+				color: new THREE.Color().setScalar(this.emissionFactor),
 				transparent: true,
+				blending: THREE.AdditiveBlending,
 				opacity: 0,
+				lightMap: texture,
+				lightMapIntensity: this.emissionFactor,
 				depthWrite: false
 			});
 
-			this.soundIndicators = [];
-			for (let i = 0; i < this.emissionFactor; i++) {
-				const mesh = new THREE.Mesh(geometry, material);
-				mesh.position.set(0, 0.2, 0.241);
-				this.head.add(mesh);
-				this.soundIndicators.push(mesh);
-			}
+			this.soundIndicator = new THREE.Mesh(geometry, material);
+			this.soundIndicator.position.set(0, 0.2, 0.241);
+			this.head.add(this.soundIndicator);
 		});
 	}
 
 	updateSoundIndicator(volume) {
-		if (this.soundIndicators && this.soundIndicators.length > 0) {
-			const easedVolume = 1 - Math.pow(1 - volume, 3);
-			this.soundIndicators[0].material.opacity = easedVolume;
+		if (this.soundIndicator) {
+			const easedVolume = Math.pow(volume, 3);
+			if (easedVolume < 0.2) this.soundIndicator.material.opacity = Math.max(this.soundIndicator.material.opacity - 0.025, 0);
+			else this.soundIndicator.material.opacity = easedVolume;
 		}
 	}
 
 	update(faceData, delta) {
-		if (faceData) {
-			this._updateTargets(faceData);
-		}
-
+		if (faceData) this._updateTargets(faceData);
 		this._applyAnimation(delta);
 	}
 

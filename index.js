@@ -74,62 +74,46 @@ class App {
 			// this.ctx2D.drawImage(this.cameraManager.video, 0, 0, width, height); 
 			this.ctx2D.restore();
 
-			// Async Face Detection
 			if (!this.isDetecting) {
 				this.isDetecting = true;
 				this.faceTracker.detect(this.cameraManager.video, now)
-					.then(data => {
+					.then((data) => {
 						if (data) {
 							this.latestFaceData = data;
 							this.canvas3D.classList.remove("fade-out");
-						} else {
-							this.canvas3D.classList.add("fade-out");
-						}
+						} else this.canvas3D.classList.add("fade-out");
 					})
-					.catch(e => {
-						console.warn("Detection error:", e);
-					})
-					.finally(() => {
-						this.isDetecting = false;
-					});
+					.catch((error) => console.warn("Detection error:", error))
+					.finally(() => this.isDetecting = false);
 			}
 		}
 
-		if (this.avatar) {
-			this.avatar.update(this.latestFaceData, delta);
-		}
+		if (this.avatar) this.avatar.update(this.latestFaceData, delta);
 
 		if (this.audioManager && this.avatar) {
 			const volume = this.audioManager.getVolume();
 			this.avatar.updateSoundIndicator(volume);
 		}
 
-		if (this.sceneManager) {
-			this.sceneManager.render();
-		}
+		if (this.sceneManager) this.sceneManager.render();
 
 		requestAnimationFrame(this.loop);
 	}
+
 	setupUIAutoHiding() {
 		const container = document.getElementById("container");
 		if (!container) return;
 
 		let hideTimeout;
 
-		const showUI = () => {
-			container.classList.remove("hidden");
-		};
+		const showUI = () => container.classList.remove("hidden");
 
 		const resetTimer = () => {
 			showUI();
 			clearTimeout(hideTimeout);
 			hideTimeout = setTimeout(() => {
-				// Don't hide if a child element has focus (e.g. select is open/focused)
-				if (container.contains(document.activeElement)) {
-					resetTimer(); // try again later
-				} else {
-					container.classList.add("hidden");
-				}
+				if (container.contains(document.activeElement)) resetTimer();
+				else container.classList.add("hidden");
 			}, 3000);
 		};
 

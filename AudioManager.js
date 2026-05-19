@@ -96,9 +96,7 @@ export class AudioManager {
 		this.analyser.getByteFrequencyData(this.dataArray);
 
 		let sum = 0;
-		for (let i = 0; i < this.dataArray.length; i++) {
-			sum += this.dataArray[i];
-		}
+		for (let i = 0; i < this.dataArray.length; i++) sum += this.dataArray[i];
 
 		const average = sum / this.dataArray.length;
 		return Math.min(average / 128, 1);
