@@ -24,7 +24,7 @@ export class SceneManager {
 	init() {
 		this.scene = new THREE.Scene();
 
-		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas3D, alpha: true });
+		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas3D, alpha: true, premultipliedAlpha: false });
 		this.renderer.setClearColor(0x000000, 0);
 
 		this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
