@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
 export class SceneManager {
 	constructor(canvas3D, canvas2D) {
@@ -24,7 +25,7 @@ export class SceneManager {
 		this.scene = new THREE.Scene();
 
 		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas3D, alpha: true });
-		this.renderer.setClearAlpha(0);
+		this.renderer.setClearColor(0x000000, 0);
 
 		this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
 		this.camera.position.set(...this.cameraPosition);
@@ -41,6 +42,8 @@ export class SceneManager {
 		this.scene.add(ambientLight, primaryDirectionalLight, secondaryDirectionalLight);
 
 		const renderPass = new RenderPass(this.scene, this.camera);
+		renderPass.clearColor = new THREE.Color(0, 0, 0);
+		renderPass.clearAlpha = 0;
 
 		const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 		bloomPass.threshold = 1.0;
@@ -50,6 +53,9 @@ export class SceneManager {
 		this.composer = new EffectComposer(this.renderer);
 		this.composer.addPass(renderPass);
 		this.composer.addPass(bloomPass);
+
+		const outputPass = new OutputPass();
+		this.composer.addPass(outputPass);
 
 		this._handleResize();
 		window.addEventListener("resize", () => this._handleResize());
