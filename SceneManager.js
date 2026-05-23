@@ -45,14 +45,14 @@ export class SceneManager {
 		renderPass.clearColor = new THREE.Color(0, 0, 0);
 		renderPass.clearAlpha = 0;
 
-		const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+		/* const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 		bloomPass.threshold = 1.0;
 		bloomPass.strength = 0.2;
-		bloomPass.radius = 0.5;
+		bloomPass.radius = 0.5; */
 
 		this.composer = new EffectComposer(this.renderer);
 		this.composer.addPass(renderPass);
-		this.composer.addPass(bloomPass);
+		// this.composer.addPass(bloomPass);
 
 		const outputPass = new OutputPass();
 		this.composer.addPass(outputPass);
