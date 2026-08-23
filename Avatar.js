@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export class Avatar {
 	constructor() {
-		this.emissionFactor = 2;
+		this.emissionFactor = 20;
 
 		this.head = null;
 		this.leftEye = null;
@@ -14,13 +14,13 @@ export class Avatar {
 		this.eyeMovementCoeff = { x: 15, y: 15 };
 		this.blinkState = { left: false, right: false };
 		this.blinkingThresholdOn = 0.5;
-		this.blinkingThresholdOff = 0.3;
+		this.blinkingThresholdOff = 0.4;
 		this.eyesSyncThreshold = 0.2;
 		this.smilingFactor = 0.3;
 
 		this.previousVolume = 0;
 
-		this.eyeBaseCoeff = 0.1;
+		this.eyeBaseCoeff = 0.05;
 		this.headPositionBaseCoeff = 0.05;
 		this.headQuaternionBaseCoeff = 0.05;
 		this.blendShapeBaseCoeff = {
@@ -82,10 +82,9 @@ export class Avatar {
 
 			this.eyeMaterials.push(new THREE.MeshBasicMaterial({
 				map: texture,
-				color: new THREE.Color().setScalar(this.emissionFactor),
 				transparent: true,
 				lightMap: texture,
-				lightMapIntensity: this.emissionFactor,
+				lightMapIntensity: this.emissionFactor / 10,
 				depthWrite: false
 			}));
 		}
@@ -121,7 +120,6 @@ export class Avatar {
 			const geometry = new THREE.PlaneGeometry(0.386, 0.206);
 			const material = new THREE.MeshBasicMaterial({
 				map: texture,
-				color: new THREE.Color().setScalar(this.emissionFactor),
 				transparent: true,
 				lightMap: texture,
 				lightMapIntensity: this.emissionFactor,
@@ -136,7 +134,7 @@ export class Avatar {
 
 	updateSoundIndicator(volume, delta) {
 		if (this.soundIndicator) {
-			const lerpedVolume = THREE.MathUtils.lerp(this.previousVolume, volume > 0.3 ? volume : 0, 1 - Math.exp(-delta / 0.1));
+			const lerpedVolume = THREE.MathUtils.lerp(this.previousVolume, volume > 0.15 ? volume : 0, 1 - Math.exp(-delta / 0.1));
 			this.soundIndicator.material.opacity = lerpedVolume > 0.01 ? 1 - Math.pow(1 - Math.max(Math.min(lerpedVolume, 1), 0), 3) : 0;
 			this.previousVolume = lerpedVolume;
 		}

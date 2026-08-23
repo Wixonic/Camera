@@ -26,14 +26,11 @@ export class AudioManager {
 				selectedId = savedDeviceId;
 			} else {
 				// 2. Smart Selection
-				const waveMic = options.find(opt => opt.text.toLowerCase().includes("wave"));
+				const waveMic = options.find(opt => opt.text.toLowerCase().includes("wave") && opt.text.toLowerCase().includes("microphone"));
 				const macbookMic = options.find(opt => opt.text.toLowerCase().includes("macbook"));
 
-				if (waveMic) {
-					selectedId = waveMic.value;
-				} else if (macbookMic) {
-					selectedId = macbookMic.value;
-				}
+				if (waveMic) selectedId = waveMic.value;
+				else if (macbookMic) selectedId = macbookMic.value;
 			}
 
 			if (selectedId) {
