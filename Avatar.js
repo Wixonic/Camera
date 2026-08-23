@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export class Avatar {
 	constructor() {
-		this.emissionFactor = 8;
+		this.emissionFactor = 2;
 
 		this.head = null;
 		this.leftEye = null;
@@ -57,6 +57,19 @@ export class Avatar {
 		const gltfLoader = new GLTFLoader();
 		const gltf = await new Promise((resolve, reject) => gltfLoader.load("./head.glb", resolve, undefined, reject));
 		this.head = gltf.scene.children[0];
+		this.head.traverse((child) => {
+			if (!child.material) return;
+			const materials = Array.isArray(child.material) ? child.material : [child.material];
+			for (const material of materials) {
+				material.side = THREE.DoubleSide;
+				material.transmission = 0;
+				material.transmissionMap = null;
+				material.transparent = false;
+				material.depthWrite = true;
+				material.depthTest = true;
+				material.needsUpdate = true;
+			}
+		});
 		this.head.position.set(0, 0, 0);
 	}
 
@@ -71,7 +84,6 @@ export class Avatar {
 				map: texture,
 				color: new THREE.Color().setScalar(this.emissionFactor),
 				transparent: true,
-				blending: THREE.AdditiveBlending,
 				lightMap: texture,
 				lightMapIntensity: this.emissionFactor,
 				depthWrite: false
@@ -111,8 +123,6 @@ export class Avatar {
 				map: texture,
 				color: new THREE.Color().setScalar(this.emissionFactor),
 				transparent: true,
-				blending: THREE.AdditiveBlending,
-				opacity: 0,
 				lightMap: texture,
 				lightMapIntensity: this.emissionFactor,
 				depthWrite: false
